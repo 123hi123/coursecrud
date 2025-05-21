@@ -102,7 +102,36 @@ pytest
 
 ## 部署
 
-項目已配置GitHub Actions CI/CD，推送到main分支後會自動構建Docker鏡像並推送到Docker Hub。
+項目已配置 GitHub Actions CI/CD：
+
+- CI 工作流程：當推送到 main 分支時自動運行測試
+- Docker 映像工作流程：當創建版本標籤 (如 v1.0.0) 時自動構建並推送映像到 GitHub Container Registry
+
+### 使用 GitHub Container Registry 映像
+
+你可以直接從 GitHub Container Registry 拉取預構建的映像：
+
+```bash
+# 拉取最新版本
+docker pull ghcr.io/[username]/coursecrud:latest
+
+# 或拉取特定版本
+docker pull ghcr.io/[username]/coursecrud:v1.0.0
+```
+
+### 創建新版本
+
+要發布新版本並觸發 Docker 映像構建：
+
+```bash
+# 標記新版本
+git tag v1.0.0
+
+# 推送標籤到 GitHub
+git push origin v1.0.0
+```
+
+這將自動觸發 Docker 映像構建並推送到 GitHub Container Registry。
 
 ## 開發文檔
 
