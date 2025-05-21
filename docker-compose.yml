@@ -5,9 +5,11 @@ services:
     build: .
     container_name: coursecrud-api
     volumes:
-      - .:/app
+      - ./:/app
+      - ./data:/app/data
     ports:
       - "8000:8000"
     environment:
-      - DATABASE_URL=sqlite:///./sql_app.db
+      - PYTHONPATH=/app
+      - DATABASE_URL=sqlite:///./data/sql_app.db
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload 
