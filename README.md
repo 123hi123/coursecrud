@@ -107,6 +107,18 @@ pytest
 - CI 工作流程：當推送到 main 分支時自動運行測試
 - Docker 映像工作流程：當創建版本標籤 (如 v1.0.0) 時自動構建並推送映像到 GitHub Container Registry
 
+### 使用 Docker 運行應用
+
+```bash
+# 使用最新版本並掛載數據目錄 (Windows PowerShell)
+docker run -d -p 8000:8000 -v "D:\file\docker\ccrud:/app/data" --name coursecrud-api ghcr.io/123hi123/coursecrud:latest
+
+# Linux/Mac 環境
+docker run -d -p 8000:8000 -v "/path/to/local/data:/app/data" --name coursecrud-api ghcr.io/123hi123/coursecrud:latest
+```
+
+重要提示：掛載目錄必須指向 `/app/data`，這是應用存儲數據庫文件的位置。
+
 ### 使用 GitHub Container Registry 映像
 
 你可以直接從 GitHub Container Registry 拉取預構建的映像：
@@ -160,4 +172,75 @@ git push origin v1.0.0
 
 - 最終整理：1小時
   - 代碼優化：0.5小時
-  - 文檔完善：0.5小時 
+  - 文檔完善：0.5小時
+
+## API 使用說明
+
+### 學生管理 API
+
+#### 獲取學生列表
+```
+GET /api/v1/students/
+```
+
+#### 獲取特定學生
+```
+GET /api/v1/students/{student_id}
+```
+
+#### 創建學生
+```
+POST /api/v1/students/
+```
+請求體範例:
+```json
+{
+  "student_id": "S001",
+  "name": "王小明",
+  "email": "student@example.com",
+  "phone": "1234567890"
+}
+```
+
+#### 更新學生信息
+```
+PUT /api/v1/students/{student_id}
+```
+請求體範例 (只需包含要更新的欄位):
+```json
+{
+  "name": "王大明",
+  "email": "new-email@example.com"
+}
+```
+
+使用 curl 命令更新學生信息:
+```bash
+curl -X PUT "http://localhost:8000/api/v1/students/1" \
+  -H "Content-Type: application/json" \
+  -d '{"name": "王大明", "email": "new-email@example.com"}'
+```
+
+使用 Python requests 更新學生信息:
+```python
+import requests
+
+student_id = 1
+update_data = {
+  "name": "王大明",
+  "email": "new-email@example.com"
+}
+
+response = requests.put(
+  f"http://localhost:8000/api/v1/students/{student_id}",
+  json=update_data
+)
+
+print(response.status_code)
+print(response.json())
+```
+
+#### 刪除學生
+```
+DELETE /api/v1/students/{student_id}
+``` 

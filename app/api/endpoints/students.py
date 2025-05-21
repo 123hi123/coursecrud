@@ -89,8 +89,34 @@ def update_student(
             detail="找不到該學生"
         )
     
-    # 更新字段
+    # 獲取更新數據 (只包含有變更的字段)
     update_data = student_in.dict(exclude_unset=True)
+    
+    # 檢查學號唯一性 (如果要更新學號)
+    if "student_id" in update_data and update_data["student_id"] != student.student_id:
+        exists = db.query(Student).filter(
+            Student.student_id == update_data["student_id"],
+            Student.id != student_id
+        ).first()
+        if exists:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="該學號已被其他學生使用"
+            )
+    
+    # 檢查郵箱唯一性 (如果要更新郵箱)
+    if "email" in update_data and update_data["email"] != student.email:
+        exists = db.query(Student).filter(
+            Student.email == update_data["email"],
+            Student.id != student_id
+        ).first()
+        if exists:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="該郵箱已被其他學生使用"
+            )
+    
+    # 更新字段
     for field, value in update_data.items():
         setattr(student, field, value)
     
