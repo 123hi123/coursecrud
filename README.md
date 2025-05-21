@@ -105,7 +105,27 @@ pytest
 項目已配置 GitHub Actions CI/CD：
 
 - CI 工作流程：當推送到 main 分支時自動運行測試
-- Docker 映像工作流程：當創建版本標籤 (如 v1.0.0) 時自動構建並推送映像到 GitHub Container Registry
+- Docker 映像工作流程：當創建版本標籤 (如 v1.0.0) 時自動構建並推送映像到 GitHub Container Registry 和 Docker Hub
+
+### Docker Hub 設置
+
+要使用自動推送到 Docker Hub 功能，您需要在 GitHub 倉庫中設置以下 Secrets：
+
+1. `DOCKERHUB_USERNAME` - 您的 Docker Hub 用戶名
+2. `DOCKERHUB_TOKEN` - 您的 Docker Hub 訪問令牌 (不是密碼)
+
+獲取 Docker Hub 訪問令牌的步驟：
+1. 登錄 [Docker Hub](https://hub.docker.com/)
+2. 點擊右上角頭像 → Account Settings
+3. 在左側選單選擇 "Security"
+4. 點擊 "New Access Token"，輸入名稱並選擇權限
+5. 複製生成的令牌 (它只會顯示一次)
+
+在 GitHub 倉庫中設置 Secrets 的步驟：
+1. 在倉庫頁面點擊 "Settings"
+2. 在左側選單選擇 "Secrets and variables" → "Actions"
+3. 點擊 "New repository secret"
+4. 分別添加 `DOCKERHUB_USERNAME` 和 `DOCKERHUB_TOKEN`
 
 ### 使用 Docker 運行應用
 
