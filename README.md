@@ -2,6 +2,116 @@
 
 這是一個使用FastAPI框架開發的學生選課管理系統API，提供學生、課程管理和選課功能。
 
+## 快速開始
+
+### 在線示例
+
+您可以通過以下地址直接訪問並體驗本系統：
+
+- API 入口：http://crud.comalot.me:8000/
+- API 文檔：http://crud.comalot.me:8000/docs
+
+無需安裝，直接在瀏覽器中嘗試各項功能。
+
+### 使用 Docker 運行應用
+
+```bash
+# 從 GitHub Container Registry 拉取
+docker pull ghcr.io/123hi123/coursecrud:latest
+
+# 或從 Docker Hub 拉取
+docker pull joeapi/coursecrud:latest
+
+# 運行容器 (Windows PowerShell)
+docker run -d -p 8000:8000 -v "D:\file\docker\ccrud:/app/data" --name coursecrud-api ghcr.io/123hi123/coursecrud:latest
+# 或
+docker run -d -p 8000:8000 -v "D:\file\docker\ccrud:/app/data" --name coursecrud-api joeapi/coursecrud:latest
+
+# Linux/Mac 環境
+docker run -d -p 8000:8000 -v "/path/to/local/data:/app/data" --name coursecrud-api ghcr.io/123hi123/coursecrud:latest
+# 或
+docker run -d -p 8000:8000 -v "/path/to/local/data:/app/data" --name coursecrud-api joeapi/coursecrud:latest
+```
+
+重要提示：掛載目錄必須指向 `/app/data`，這是應用存儲數據庫文件的位置。
+
+### 管理運行中的容器
+
+如果您已經運行了容器，並需要更新到最新版本，可以使用以下命令：
+
+```bash
+# 停止現有容器
+docker stop coursecrud-api
+
+# 刪除現有容器 (保留數據，因為數據保存在掛載卷中)
+docker rm coursecrud-api
+
+# 拉取最新映像
+docker pull ghcr.io/123hi123/coursecrud:latest
+# 或
+docker pull joeapi/coursecrud:latest
+
+# 使用相同的配置啟動新容器
+docker run -d -p 8000:8000 -v "D:\file\docker\ccrud:/app/data" --name coursecrud-api ghcr.io/123hi123/coursecrud:latest
+# 或
+docker run -d -p 8000:8000 -v "D:\file\docker\ccrud:/app/data" --name coursecrud-api joeapi/coursecrud:latest
+```
+
+快速重啟容器：
+
+```bash
+# 重啟現有容器 (不更新映像)
+docker restart coursecrud-api
+```
+
+查看容器日誌：
+
+```bash
+# 查看容器日誌
+docker logs coursecrud-api
+
+# 持續查看日誌
+docker logs -f coursecrud-api
+```
+
+### 使用 GitHub Container Registry 映像
+
+你可以直接從 GitHub Container Registry 拉取預構建的映像：
+
+```bash
+# 拉取最新版本
+docker pull ghcr.io/123hi123/coursecrud:latest
+
+# 或拉取特定版本
+docker pull ghcr.io/123hi123/coursecrud:v1.0.0
+```
+
+### 使用 Docker Hub 映像
+
+你也可以從 Docker Hub 拉取映像：
+
+```bash
+# 拉取最新版本
+docker pull joeapi/coursecrud:latest
+
+# 或拉取特定版本
+docker pull joeapi/coursecrud:v1.0.0
+```
+
+### 創建新版本
+
+要發布新版本並觸發 Docker 映像構建：
+
+```bash
+# 標記新版本
+git tag v1.0.0
+
+# 推送標籤到 GitHub
+git push origin v1.0.0
+```
+
+這將自動觸發 Docker 映像構建並推送到 GitHub Container Registry。
+
 ## 功能
 
 - 學生管理：創建、查詢、更新和刪除學生信息
@@ -107,6 +217,72 @@ pytest
 - CI 工作流程：當推送到 main 分支時自動運行測試
 - Docker 映像工作流程：當創建版本標籤 (如 v1.0.0) 時自動構建並推送映像到 GitHub Container Registry 和 Docker Hub
 
+### GCP 部署指南
+
+以下是將系統部署到 Google Cloud Platform (GCP) 的步驟：
+
+#### 1. 開啟 VPS 的命令行
+
+在 GCP 控制台中連接到您的虛擬機實例。
+
+![開啟VPS的CMD](https://cdn.jsdelivr.net/gh/321hi123/typoraimgbed/img/image-20250521113356514.png)
+
+#### 2. 更新系統並安裝 Docker
+
+```bash
+# 更新系統套件
+sudo apt-get update
+sudo apt-get upgrade -y
+
+# 安裝 Docker
+sudo apt-get install docker.io -y
+sudo systemctl enable docker
+sudo systemctl start docker
+```
+
+![更新系統並下載Docker](https://cdn.jsdelivr.net/gh/321hi123/typoraimgbed/img/image-20250521113439376.png)
+
+#### 3. 配置防火牆規則
+
+在 GCP 控制台中創建防火牆規則，允許流量訪問容器使用的端口 (8000)。
+
+![建立防火牆讓他可以訪問容器](https://cdn.jsdelivr.net/gh/321hi123/typoraimgbed/img/image-20250521114413560.png)
+
+#### 4. 部署容器
+
+```bash
+# 拉取 Docker 映像
+sudo docker pull joeapi/coursecrud:latest
+
+# 創建數據目錄
+sudo mkdir -p /app/data
+
+# 運行容器
+sudo docker run -d -p 8000:8000 -v /app/data:/app/data --name coursecrud-api joeapi/coursecrud:latest
+```
+
+![部屬容器](https://cdn.jsdelivr.net/gh/321hi123/typoraimgbed/img/image-20250521114515694.png)
+
+#### 5. 確認服務運行
+
+訪問 `http://[您的服務器IP]:8000` 確認服務已成功部署。
+
+![成功上線](https://cdn.jsdelivr.net/gh/321hi123/typoraimgbed/img/image-20250521114608805.png)
+
+#### 6. 測試 API 功能
+
+使用瀏覽器或 API 工具訪問 `http://[您的服務器IP]:8000/docs` 測試各個 API 端點。
+
+![測試可用性](https://cdn.jsdelivr.net/gh/321hi123/typoraimgbed/img/image-20250521114704325.png)
+
+#### 7. 配置域名 (可選)
+
+使用 Cloudflare 等 DNS 服務將域名指向您的服務器 IP。
+
+![透過 cf 讓域名指向服務器](https://cdn.jsdelivr.net/gh/321hi123/typoraimgbed/img/image-20250521114909882.png)
+
+完成上述步驟後，您可以通過 `http://您的域名:8000` 訪問系統。
+
 ### Docker Hub 設置
 
 要使用自動推送到 Docker Hub 功能，您需要在 GitHub 倉庫中設置以下 Secrets：
@@ -126,79 +302,6 @@ pytest
 2. 在左側選單選擇 "Secrets and variables" → "Actions"
 3. 點擊 "New repository secret"
 4. 分別添加 `DOCKERHUB_USERNAME` 和 `DOCKERHUB_TOKEN`
-
-### 使用 Docker 運行應用
-
-```bash
-# 使用最新版本並掛載數據目錄 (Windows PowerShell)
-docker run -d -p 8000:8000 -v "D:\file\docker\ccrud:/app/data" --name coursecrud-api ghcr.io/123hi123/coursecrud:latest
-
-# Linux/Mac 環境
-docker run -d -p 8000:8000 -v "/path/to/local/data:/app/data" --name coursecrud-api ghcr.io/123hi123/coursecrud:latest
-```
-
-重要提示：掛載目錄必須指向 `/app/data`，這是應用存儲數據庫文件的位置。
-
-### 管理運行中的容器
-
-如果您已經運行了容器，並需要更新到最新版本，可以使用以下命令：
-
-```bash
-# 停止現有容器
-docker stop coursecrud-api
-
-# 刪除現有容器 (保留數據，因為數據保存在掛載卷中)
-docker rm coursecrud-api
-
-# 拉取最新映像
-docker pull ghcr.io/123hi123/coursecrud:latest
-
-# 使用相同的配置啟動新容器
-docker run -d -p 8000:8000 -v "D:\file\docker\ccrud:/app/data" --name coursecrud-api ghcr.io/123hi123/coursecrud:latest
-```
-
-快速重啟容器：
-
-```bash
-# 重啟現有容器 (不更新映像)
-docker restart coursecrud-api
-```
-
-查看容器日誌：
-
-```bash
-# 查看容器日誌
-docker logs coursecrud-api
-
-# 持續查看日誌
-docker logs -f coursecrud-api
-```
-
-### 使用 GitHub Container Registry 映像
-
-你可以直接從 GitHub Container Registry 拉取預構建的映像：
-
-```bash
-# 拉取最新版本
-docker pull ghcr.io/[username]/coursecrud:latest
-
-# 或拉取特定版本
-docker pull ghcr.io/[username]/coursecrud:v1.0.0
-```
-
-### 創建新版本
-
-要發布新版本並觸發 Docker 映像構建：
-
-```bash
-# 標記新版本
-git tag v1.0.0
-
-# 推送標籤到 GitHub
-git push origin v1.0.0
-```
-
-這將自動觸發 Docker 映像構建並推送到 GitHub Container Registry。
 
 ## 開發文檔
 
