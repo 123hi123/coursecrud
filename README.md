@@ -217,17 +217,19 @@ pytest
 - CI 工作流程：當推送到 main 分支時自動運行測試
 - Docker 映像工作流程：當創建版本標籤 (如 v1.0.0) 時自動構建並推送映像到 GitHub Container Registry 和 Docker Hub
 
-### GCP 部署指南
+### GCP 部署經驗分享
 
-以下是將系統部署到 Google Cloud Platform (GCP) 的步驟：
+以下是我將系統成功部署到 Google Cloud Platform (GCP) 的過程：
 
 #### 1. 開啟 VPS 的命令行
 
-在 GCP 控制台中連接到您的虛擬機實例。
+首先，我在 GCP 控制台中連接到我的虛擬機實例，打開了命令行介面。
 
 ![開啟VPS的CMD](https://cdn.jsdelivr.net/gh/321hi123/typoraimgbed/img/image-20250521113356514.png)
 
 #### 2. 更新系統並安裝 Docker
+
+接著，我更新了系統並安裝了 Docker：
 
 ```bash
 # 更新系統套件
@@ -240,15 +242,19 @@ sudo systemctl enable docker
 sudo systemctl start docker
 ```
 
+這樣確保了系統是最新的，並且 Docker 已經成功安裝並啟動。
+
 ![更新系統並下載Docker](https://cdn.jsdelivr.net/gh/321hi123/typoraimgbed/img/image-20250521113439376.png)
 
 #### 3. 配置防火牆規則
 
-在 GCP 控制台中創建防火牆規則，允許流量訪問容器使用的端口 (8000)。
+為了讓外部能夠訪問我的容器，我在 GCP 控制台創建了防火牆規則，允許流量訪問 8000 端口。
 
 ![建立防火牆讓他可以訪問容器](https://cdn.jsdelivr.net/gh/321hi123/typoraimgbed/img/image-20250521114413560.png)
 
 #### 4. 部署容器
+
+然後，我開始部署容器：
 
 ```bash
 # 拉取 Docker 映像
@@ -261,27 +267,29 @@ sudo mkdir -p /app/data
 sudo docker run -d -p 8000:8000 -v /app/data:/app/data --name coursecrud-api joeapi/coursecrud:latest
 ```
 
+這些命令幫助我拉取了最新的 Docker 映像，創建了持久化數據的目錄，並啟動了容器服務。
+
 ![部屬容器](https://cdn.jsdelivr.net/gh/321hi123/typoraimgbed/img/image-20250521114515694.png)
 
 #### 5. 確認服務運行
 
-訪問 `http://[您的服務器IP]:8000` 確認服務已成功部署。
+部署完成後，我通過訪問 `http://[我的服務器IP]:8000` 確認服務已成功上線。
 
 ![成功上線](https://cdn.jsdelivr.net/gh/321hi123/typoraimgbed/img/image-20250521114608805.png)
 
 #### 6. 測試 API 功能
 
-使用瀏覽器或 API 工具訪問 `http://[您的服務器IP]:8000/docs` 測試各個 API 端點。
+我使用瀏覽器訪問 `http://[我的服務器IP]:8000/docs`，測試了各個 API 端點，確保它們都能正常工作。
 
 ![測試可用性](https://cdn.jsdelivr.net/gh/321hi123/typoraimgbed/img/image-20250521114704325.png)
 
-#### 7. 配置域名 (可選)
+#### 7. 配置域名
 
-使用 Cloudflare 等 DNS 服務將域名指向您的服務器 IP。
+最後，我使用 Cloudflare 將域名 `crud.comalot.me` 指向了我的服務器 IP，使系統可以通過更友好的域名訪問。
 
 ![透過 cf 讓域名指向服務器](https://cdn.jsdelivr.net/gh/321hi123/typoraimgbed/img/image-20250521114909882.png)
 
-完成上述步驟後，您可以通過 `http://您的域名:8000` 訪問系統。
+完成上述步驟後，我的系統成功部署並可通過 `http://crud.comalot.me:8000` 訪問。通過這種方式，我將本地開發的系統成功部署到了雲端環境，使其可以被全球用戶訪問。
 
 ### Docker Hub 設置
 
@@ -436,4 +444,54 @@ GET /api/v1/enrollments/students/{student_id}/courses
 
 # 查看課程的選課學生
 GET /api/v1/enrollments/courses/{course_id}/students
-``` 
+```
+
+## 團隊成員
+
+- [123hi123](https://github.com/123hi123) - 主要開發者
+
+## 數據庫關係圖
+
+下面是本系統的數據庫關係圖，展示了學生、課程和選課關係的設計：
+
+```mermaid
+erDiagram
+    STUDENT ||--o{ ENROLLMENT : registers
+    COURSE ||--o{ ENROLLMENT : contains
+    
+    STUDENT {
+        int id PK
+        string student_id UK
+        string name
+        string email UK
+        string phone
+        datetime created_at
+        datetime updated_at
+        boolean is_active
+    }
+    
+    COURSE {
+        int id PK
+        string course_code UK
+        string title
+        string description
+        int credits
+        int max_students
+        datetime created_at
+        datetime updated_at
+        boolean is_active
+    }
+    
+    ENROLLMENT {
+        int student_id PK,FK
+        int course_id PK,FK
+        datetime enrollment_date
+        boolean is_active
+    }
+```
+
+這個設計採用了多對多關係，使用 ENROLLMENT 表作為關聯表，連接 STUDENT 和 COURSE。每個學生可以選修多門課程，每門課程也可以有多名學生選修。
+
+PK = Primary Key (主鍵)
+UK = Unique Key (唯一鍵)
+FK = Foreign Key (外鍵) 
