@@ -119,6 +119,41 @@ docker run -d -p 8000:8000 -v "/path/to/local/data:/app/data" --name coursecrud-
 
 重要提示：掛載目錄必須指向 `/app/data`，這是應用存儲數據庫文件的位置。
 
+### 管理運行中的容器
+
+如果您已經運行了容器，並需要更新到最新版本，可以使用以下命令：
+
+```bash
+# 停止現有容器
+docker stop coursecrud-api
+
+# 刪除現有容器 (保留數據，因為數據保存在掛載卷中)
+docker rm coursecrud-api
+
+# 拉取最新映像
+docker pull ghcr.io/123hi123/coursecrud:latest
+
+# 使用相同的配置啟動新容器
+docker run -d -p 8000:8000 -v "D:\file\docker\ccrud:/app/data" --name coursecrud-api ghcr.io/123hi123/coursecrud:latest
+```
+
+快速重啟容器：
+
+```bash
+# 重啟現有容器 (不更新映像)
+docker restart coursecrud-api
+```
+
+查看容器日誌：
+
+```bash
+# 查看容器日誌
+docker logs coursecrud-api
+
+# 持續查看日誌
+docker logs -f coursecrud-api
+```
+
 ### 使用 GitHub Container Registry 映像
 
 你可以直接從 GitHub Container Registry 拉取預構建的映像：
@@ -243,4 +278,39 @@ print(response.json())
 #### 刪除學生
 ```
 DELETE /api/v1/students/{student_id}
+```
+
+注意：刪除學生會執行「軟刪除」（設置 is_active=false），並會移除該學生的所有選課關係。數據仍保留在資料庫中，但在查詢時不會顯示這些學生。
+
+## 開發工具
+
+### 生成測試數據和關係
+
+系統提供了測試數據生成工具，可以快速創建學生、課程以及它們之間的關係：
+
+```bash
+# 在本地環境運行
+python -m app.db.seed_data
+
+# 在 Docker 容器中運行
+docker exec -it coursecrud-api python -m app.db.seed_data
+```
+
+這將自動創建：
+- 5 個示例學生
+- 5 門示例課程
+- 隨機的選課關係（每個學生選 2-4 門課）
+
+生成後，系統會顯示完整的關係摘要，方便確認。如果數據庫中已有數據，則不會重複創建。
+
+### 查看數據關係
+
+可以通過以下 API 端點查看數據關係：
+
+```
+# 查看學生的選課記錄
+GET /api/v1/enrollments/students/{student_id}/courses
+
+# 查看課程的選課學生
+GET /api/v1/enrollments/courses/{course_id}/students
 ``` 

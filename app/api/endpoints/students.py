@@ -139,6 +139,9 @@ def delete_student(
             detail="找不到該學生"
         )
     
+    # 清空該學生的選課關係
+    student.courses = []
+    
     # 執行軟刪除
     student.is_active = False
     db.commit()
