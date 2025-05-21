@@ -1,20 +1,23 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from contextlib import asynccontextmanager
 
 from app.api.api import api_router
 from app.core.config import API_V1_STR, PROJECT_NAME
 from app.db.init_db import init_db
 
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # 初始化數據庫（在啟動時執行）
+    init_db()
+    yield
+
 app = FastAPI(
     title=PROJECT_NAME,
     description="提供學生、課程管理和選課功能的後端服務",
     version="0.1.0",
+    lifespan=lifespan,
 )
-
-# 初始化數據庫（在生產環境中會使用迁移工具）
-@app.on_event("startup")
-async def startup_event():
-    init_db()
 
 # 設定CORS
 app.add_middleware(
